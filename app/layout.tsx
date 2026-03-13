@@ -22,6 +22,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   <meta name="yandex-tableau-widget" content="disable" />
   <meta name="ya-title" content="none" />
   <meta name="translate" content="no" />
+  <meta name="google-site-verification" content="Depdgdedh20UtJEzt-Lb3goDPWXurKns_EVVLEgq38A" />
 </head>
       <body suppressHydrationWarning>
         <Navbar />
