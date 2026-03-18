@@ -19,9 +19,9 @@ export async function POST(req: Request) {
     // const origin = req.headers.get('origin');
     // const host = req.headers.get('host');
     // В продакшене замени на свой реальный домен
-    if (process.env.NODE_ENV === 'production' && !origin?.includes('my-portfolio-two-liard-75.vercel.app')) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    // if (process.env.NODE_ENV === 'production' && !origin?.includes('my-portfolio-two-liard-75.vercel.app')) {
+    //   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     
     const contextProjects = projects.map((p: any) => ({
