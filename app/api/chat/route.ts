@@ -16,8 +16,8 @@ export async function POST(req: Request) {
     }
 
     // 2. Проверка Origin (чтобы нельзя было слать запросы из Postman или с других сайтов)
-    const origin = req.headers.get('origin');
-    const host = req.headers.get('host');
+    // const origin = req.headers.get('origin');
+    // const host = req.headers.get('host');
     // В продакшене замени на свой реальный домен
     if (process.env.NODE_ENV === 'production' && !origin?.includes('my-portfolio-two-liard-75.vercel.app')) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
