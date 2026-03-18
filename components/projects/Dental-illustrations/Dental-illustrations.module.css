@@ -1,0 +1,2 @@
+.container { background: #0a0a0a; color: white; } 
+.hero { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(45deg, #222, #000); border-radius: 20px; margin-bottom: 40px; }

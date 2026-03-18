@@ -1,8 +1,5 @@
-@import './layout.css';
-@import './cases.css';
-
 :root {
-  --bg-color: #050505;
+  --bg-color: #ffffff;
   --text-color: #f0f0f0;
   --text-muted: #888888;
   --font-primary: 'Inter', sans-serif;
@@ -25,91 +22,60 @@ body {
   overflow-x: hidden;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
 /* Убираем глобальное затемнение для всех ссылок */
 a {
   color: inherit;
   text-decoration: none;
+  transition: opacity 0.2s ease;
 }
 
 /* Применяем затемнение ТОЛЬКО к текстовым ссылкам (например, в меню) */
 .nav-links a:hover, .footer-links a:hover {
   opacity: 0.7;
-  transition: opacity 0.2s ease;
 }
+
 img, video {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-
-
 /* Полностью запрещаем Яндексу рендерить свои интерфейсы над картинками */
 img {
   -webkit-user-drag: none;
-  /* Добавляем этот атрибут, чтобы браузер игнорировал картинку для своих фич */
   pointer-events: none; 
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-/* Если картинка в ссылке, возвращаем pointer-events: auto для самой ссылки */
 a img {
   pointer-events: auto;
 }
 
-/* Скрываем конкретные классы Яндекса (иногда срабатывает) */
 div[class*="ya-"], 
-div[id*="ya-"] {
+div[id*="ya-"],
+.yandex-translate-button {
   display: none !important;
 }
 
-img {
-  /* Запрещает контекстное меню браузера и подсказки */
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  
-  /* Это самое важное против подсказок Яндекса */
-  -webkit-user-drag: none; 
-}/* 1. Запрещаем Яндексу вообще видеть элементы как переводимые */
-[class*="ya-"], 
-[id*="ya-"],
-.yandex-translate-button { 
-  display: none !important; 
-}
-
-/* 2. Самый жесткий запрет на все «улучшалки» Яндекса */
 .case-card, .case-image-wrapper, .case-image {
-  -webkit-touch-callout: none; /* Запрет меню при долгом нажатии */
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  
-  /* Это конкретно против кнопки "Сохранить в коллекцию" */
   -webkit-user-drag: none; 
 }
 
-/* 3. Блокируем саму возможность Яндекса внедрять кнопки в картинки */
-img {
-  pointer-events: none; /* Если это ломает клик - см. ниже */
-  -webkit-user-drag: none;
-}
-
-/* Полностью отключаем любые взаимодействия браузера с картинкой */
 .case-card img {
   -webkit-user-drag: none;
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
   user-select: none;
-  pointer-events: none; /* Запрещает Яндексу "кликать" по картинке */
+  pointer-events: none;
 }

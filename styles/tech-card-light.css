@@ -1,0 +1,178 @@
+/* =========================================
+   TECH CASE CARD (LIGHT IDE WINDOW STYLE)
+   ========================================= */
+
+/* 1. ЖЕСТКО ЗАДАЕМ ПРОПОРЦИИ КАК У КАРТИНОК */
+.size-wide .tech-card-container { aspect-ratio: 4.8 / 1; }
+.size-span-4 .tech-card-container { aspect-ratio: 2.4 / 1; }
+.size-span-3 .tech-card-container { aspect-ratio: 1.8 / 1; }
+.size-standard .tech-card-container { aspect-ratio: 1.2 / 1; }
+
+.tech-card-container {
+  display: flex;
+  flex-direction: column; 
+  width: 100%;
+  height: 100%;
+  /* ЕДИНЫЙ СВЕТЛЫЙ ФОН Xcode STYLE */
+  background-color: #ffffff; 
+  /* Чуть более темная рамка для контраста */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: transform 0.4s ease, border-color 0.4s ease;
+  min-height: 0;
+}
+
+.case-link:hover .tech-card-container {
+  transform: scale(1.005);
+  border-color: rgba(59, 130, 246, 0.6); /* Чуть более яркое свечение */
+}
+
+/* =========================================
+   ШАПКА ОКНА (ТЕПЕРЬ СВЕТЛАЯ)
+   ========================================= */
+.terminal-header {
+  height: 30px;
+  min-height: 30px;
+  background-color: #f5f5f5; /* Светло-серый фон шапки */
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  gap: 6px;
+  width: 100%;
+  flex-shrink: 0;
+  /* Серая разделительная полоса снизу */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08); 
+}
+
+/* Точки MacOS остаются теми же, они везде хорошо смотрятся */
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot.red { background-color: #ff5f56; }
+.dot.yellow { background-color: #ffbd2e; }
+.dot.green { background-color: #27c93f; }
+
+.terminal-title {
+  margin-left: 10px;
+  color: #7a7a7a; /* Чуть темнее текст, чтобы читался на светло-сером */
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+/* =========================================
+   ВНУТРЕННИЙ КОНТЕНТ (КОД + ТЕКСТ)
+   ========================================= */
+.tech-content-wrapper {
+  display: flex;
+  flex: 1; 
+  width: 100%;
+  background-color: transparent;
+  min-height: 0;
+}
+
+/* ЛЕВАЯ ЧАСТЬ: Код ( flex: 0 0 60%; ) */
+.terminal-code {
+  flex: 0 0 50%;
+  padding: 20px;
+  margin: 0;
+  overflow-y: auto;
+  min-height: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  /* ЦВЕТ КОДА (Xcode STYLE): Темно-синий */
+  color: #000080; 
+  line-height: 1.5;
+  white-space: pre-wrap;
+  scrollbar-width: none; 
+  border: none; 
+}
+.terminal-code::-webkit-scrollbar {
+  display: none; 
+}
+
+/* ЧЁРНЫЙ Мигающий курсор */
+.cursor {
+  color: #000000;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ПРАВАЯ ЧАСТЬ: Инфо ( flex: 0 0 40%; ) */
+.tech-info {
+  flex: 0 0 40%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  background-color: transparent; 
+  overflow-y: auto;
+  min-height: 0;
+  border: none;
+}
+
+.tech-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #000000; /* Чёрный заголовок */
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.tech-tags {
+  font-size: 0.8rem;
+  color: #3b82f6; /* Синий тэг - хорошо читается */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.tech-divider {
+  width: 40px;
+  height: 1px;
+  min-height: 1px;
+  background-color: #dddddd; /* Тёмно-серая полоса */
+  margin: 25px 0;
+  flex-shrink: 0;
+}
+
+.tech-description {
+  font-size: 0.95rem;
+  color: #333333; /* Тёмно-серый текст для читаемости */
+  line-height: 1.65;
+}
+
+/* =========================================
+   RESPONSIVE (Мобилки)
+   ========================================= */
+@media (max-width: 768px) {
+  .tech-card-container,
+  .size-wide .tech-card-container,
+  .size-span-4 .tech-card-container,
+  .size-span-3 .tech-card-container,
+  .size-standard .tech-card-container {
+    aspect-ratio: 1 / 1.1;
+  }
+
+  .tech-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .terminal-code {
+    flex: 0 0 50%;
+    padding: 15px;
+  }
+  .tech-info {
+    flex: 0 0 50%;
+    padding: 20px;
+    justify-content: center;
+  }
+  .tech-title {
+    font-size: 1.3rem;
+  }
+}

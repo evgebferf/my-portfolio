@@ -43,6 +43,7 @@ export default function CaseCard({ title, tags, imageSrc }: CaseCardProps) {
           crossOrigin="anonymous"
           sizes="(max-width: 768px) 100vw, 50vw"
           className="case-image"
+          unoptimized 
         />
         
         <div 

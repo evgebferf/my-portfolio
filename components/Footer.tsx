@@ -7,10 +7,10 @@ export default function Footer() {
         Motion Designer &copy; {new Date().getFullYear()}
       </div>
       <div className="footer-links">
-        <Link href="https://vimeo.com" target="_blank" rel="noopener noreferrer">Behance</Link>
-        <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">Telegram</Link>
-        <Link href="mailto:hello@example.com">Email</Link>
-      </div>
+  <Link href="https://www.behance.net/evgeniynext" target="_blank" rel="noopener noreferrer">Behance</Link>
+  <Link href="https://t.me/prilepskiyee" target="_blank" rel="noopener noreferrer">Telegram</Link>
+  <Link href="mailto:evgeniynext1337@gmail.com">Email</Link>
+</div>
     </footer>
   );
 }

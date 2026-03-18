@@ -1,0 +1,26 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  /* Для планетария оставляем черный фон, чтобы купол не "висел" в белом пространстве */
+  background-color: #000000; 
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  
+  /* Дефолтные курсоры, как ты и просил */
+  cursor: grab;
+  
+  /* Применяем твой шрифт из глобальных стилей на случай, если внутри появятся подписи */
+  font-family: var(--font-primary);
+}
+
+.container:active {
+  cursor: grabbing;
+}
+
+/* Специфическая защита для контейнера, чтобы не вылезали интерфейсы Яндекса */
+.container {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
