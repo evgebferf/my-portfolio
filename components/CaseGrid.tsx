@@ -3,7 +3,7 @@
 import { useState, useRef, FormEvent, KeyboardEvent, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import CaseCard from './CaseCard';
-import TechCaseCard from './TechCaseCard'; // <-- ИМПОРТИРУЕМ НОВЫЙ КОМПОНЕНТ
+import TechCaseCard from './TechCaseCard';
 import ReactMarkdown from 'react-markdown';
 
 export interface Project {
@@ -11,9 +11,9 @@ export interface Project {
   title: string;
   tags: string;
   previewImage: string;
+  createdAt: string; // Формат "2024-03-15"
   size?: 'standard' | 'wide' | 'narrow';
   computedSize?: string;
-  // Новые поля для скриптов (необязательные)
   type?: 'visual' | 'tech';
   codeSnippet?: string;
   description?: string;
@@ -28,7 +28,6 @@ interface ChatMessage {
   text: string;
 }
 
-// Вопросы для Арт-диров, которые будут работать как главные заголовки
 const SUGGESTED_QUESTIONS = [
   "What's your experience with large-scale multimedia projects?",
   "Can you handle complex Houdini simulations?",
@@ -37,11 +36,11 @@ const SUGGESTED_QUESTIONS = [
   "Can you adapt to both stylized and realistic art direction?"
 ];
 
-// УМНЫЙ АЛГОРИТМ СЕТКИ
+// --- УМНЫЙ АЛГОРИТМ СЕТКИ (ТЕТРИС) ---
 function processSmartGrid(projects: Project[]) {
   const grid: Project[] = [];
   let currentRow: Project[] = [];
-  let currentCols = 2;
+  let currentCols = 0;
   let prevPattern: string | null = null;
   let isFirstRow = true;
 
@@ -67,11 +66,7 @@ function processSmartGrid(projects: Project[]) {
     if (leftInRow === 0) {
       const firstSize = getCols(currentRow[0]?.computedSize || 'standard');
       const pattern = firstSize === 2 ? 'standard-first' : (firstSize === 1 ? 'narrow-first' : 'other');
-      
-      if (!isFirstRow && pattern !== 'other' && prevPattern === pattern) {
-        currentRow.reverse();
-      }
-      
+      if (!isFirstRow && pattern !== 'other' && prevPattern === pattern) currentRow.reverse();
       if (!isFirstRow) prevPattern = pattern;
 
       grid.push(...currentRow);
@@ -81,21 +76,7 @@ function processSmartGrid(projects: Project[]) {
       continue;
     }
 
-    let index = -1;
-
-    if (isFirstRow && leftInRow === 2 && pool[0].computedSize === 'wide') {
-      setCols(pool[0], 2);
-      index = 0;
-    } 
-    else if (getCols(pool[0].computedSize!) <= leftInRow) {
-      index = 0;
-    } 
-    else {
-      index = pool.findIndex(p => getCols(p.computedSize!) === leftInRow);
-      if (index === -1) {
-        index = pool.findIndex(p => getCols(p.computedSize!) < leftInRow);
-      }
-    }
+    let index = pool.findIndex(p => getCols(p.computedSize!) <= leftInRow);
 
     if (index !== -1) {
       const item = pool.splice(index, 1)[0];
@@ -103,61 +84,51 @@ function processSmartGrid(projects: Project[]) {
       currentCols += getCols(item.computedSize!);
     } else {
       if (currentRow.length > 0) {
-        let stretchIndex = currentRow.length - 1;
-        while (stretchIndex >= 0) {
-          const origSize = currentRow[stretchIndex].size || 'standard';
-          if (origSize !== 'narrow') break;
-          stretchIndex--;
-        }
-
-        if (stretchIndex >= 0) {
-          const itemToStretch = currentRow[stretchIndex];
-          setCols(itemToStretch, getCols(itemToStretch.computedSize!) + leftInRow);
-          currentCols += leftInRow; 
-        } else {
-          currentCols = 4; 
-        }
+        const itemToStretch = currentRow[currentRow.length - 1];
+        setCols(itemToStretch, getCols(itemToStretch.computedSize!) + leftInRow);
+        currentCols = 4;
       } else {
         const item = pool.shift()!;
-        const origSize = item.size || 'standard';
-        if (origSize !== 'narrow') {
-          setCols(item, leftInRow);
-        }
+        setCols(item, 4);
         currentRow.push(item);
-        currentCols += getCols(item.computedSize!);
+        currentCols = 4;
       }
     }
   }
-
-  if (currentRow.length > 0) {
-    grid.push(...currentRow);
-  }
-
+  if (currentRow.length > 0) grid.push(...currentRow);
   return grid;
 }
 
 export default function CaseGrid({ initialProjects }: CaseGridProps) {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  // 1. ПЕРВИЧНАЯ СОРТИРОВКА ПО ДАТЕ
+  const sortedByDefault = useMemo(() => {
+    return [...initialProjects].sort((a, b) => 
+      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+  }, [initialProjects]);
+
+  const [projects, setProjects] = useState<Project[]>(sortedByDefault);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [query, setQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [questionIndex, setQuestionIndex] = useState(0); 
+  const [questionIndex, setQuestionIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // 2. ГЕНЕРАЦИЯ СЕТКИ ИЗ ТЕКУЩЕГО СОСТОЯНИЯ
   const smartProjects = useMemo(() => processSmartGrid(projects), [projects]);
 
+  // Зацикливание вопросов
   useEffect(() => {
-    if (messages.length > 0 || isTyping) return; 
+    if (messages.length > 0 || isTyping) return;
     const interval = setInterval(() => {
       setQuestionIndex((prev) => (prev + 1) % SUGGESTED_QUESTIONS.length);
-    }, 4000); 
+    }, 4000);
     return () => clearInterval(interval);
   }, [messages.length, isTyping]);
 
   const handleSearch = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!query.trim()) return;
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+    if (!query.trim() || isTyping) return;
 
     const currentQuery = query.trim();
     setMessages(prev => [{ sender: 'user', text: currentQuery }, ...prev]);
@@ -170,18 +141,24 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: currentQuery, projects: initialProjects }),
       });
-      if (!res.ok) throw new Error('Ошибка сервера');
+      
       const data = await res.json();
       setMessages(prev => [{ sender: 'ai', text: data.answer }, ...prev]);
-      
+
+      // 3. УМНАЯ СОРТИРОВКА: СНАЧАЛА РЕЛЕВАНТНЫЕ ПО ДАТЕ, ПОТОМ ОСТАЛЬНЫЕ ПО ДАТЕ
       const sorted = [...initialProjects].sort((a, b) => {
         const aRel = data.relevantSlugs.includes(a.slug);
         const bRel = data.relevantSlugs.includes(b.slug);
-        return aRel === bRel ? 0 : aRel ? -1 : 1;
+
+        if (aRel !== bRel) return aRel ? -1 : 1; // Релевантные выше остальных
+
+        // Если оба релевантны или оба нет — сортируем по дате создания
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       });
+
       setProjects(sorted);
     } catch (error) {
-      setMessages(prev => [{ sender: 'ai', text: "Connection error. Please try again." }, ...prev]);
+      setMessages(prev => [{ sender: 'ai', text: "**Error:** Connection lost. Please try again." }, ...prev]);
     } finally {
       setIsTyping(false);
     }
@@ -202,9 +179,7 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
 
   const handleQuestionClick = (q: string) => {
     setQuery(q);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    textareaRef.current?.focus();
   };
 
   return (
@@ -212,59 +187,53 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
       <div className="glow-container">
         <article className="chat-card">
           <div className="messages-list">
-  {/* 1. ТОЧКИ (isTyping) — теперь они ПЕРВЫЕ в коде, значит будут САМЫМИ НИЖНИМИ на экране */}
-  {isTyping && (
-    <div className="message ai">
-      <div className="typing-dots"><span></span><span></span><span></span></div>
-    </div>
-  )}
-
-  {/* 2. СООБЩЕНИЯ */}
-  {messages.map((m, i) => (
-    <div key={i} className={`message ${m.sender}`}>
-      {m.sender === 'ai' ? (
-        <div className="markdown-content">
-          <ReactMarkdown>{m.text}</ReactMarkdown>
-        </div>
-      ) : (
-        m.text
-      )}
-    </div>
-  ))}
-
-  {/* 3. ТВОЙ ЗАГОЛОВОК (ЭФФЕКТ ПЕРЕМОТКИ) */}
-  {/* Оставляем его в конце списка: при column-reverse он будет в самом верху над сообщениями */}
-  {messages.length === 0 && (
-    <div className="empty-state">
-      <div className="empty-content">
-        <div className="dynamic-headline-wrapper">
-          {SUGGESTED_QUESTIONS.map((q, idx) => {
-            const isActive = idx === questionIndex;
-            const isPrev = idx === (questionIndex - 1 + SUGGESTED_QUESTIONS.length) % SUGGESTED_QUESTIONS.length;
+            {/* column-reverse: Первый в коде = Самый нижний в UI */}
             
-            let className = "dynamic-headline";
-            if (isActive) className += " active";
-            else if (isPrev) className += " prev";
-            else className += " next";
+            {/* 1. ТОЧКИ */}
+            {isTyping && (
+              <div className="message ai">
+                <div className="typing-dots"><span></span><span></span><span></span></div>
+              </div>
+            )}
 
-            return (
-              <h3 
-                key={idx}
-                className={className} 
-                onClick={() => handleQuestionClick(q)}
-              >
-                "{q}"
-              </h3>
-            );
-          })}
-        </div>
-        <p className="empty-subtitle">
-          Click the question above or ask my AI agent about your specific needs.
-        </p>
-      </div>
-    </div>
-  )}
-</div>
+            {/* 2. СООБЩЕНИЯ */}
+            {messages.map((m, i) => (
+              <div key={i} className={`message ${m.sender}`}>
+                {m.sender === 'ai' ? (
+                  <div className="markdown-content">
+                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                  </div>
+                ) : (
+                  m.text
+                )}
+              </div>
+            ))}
+
+            {/* 3. ЗАГОЛОВОК С ПЕРЕМОТКОЙ */}
+            {messages.length === 0 && (
+              <div className="empty-state">
+                <div className="empty-content">
+                  <div className="dynamic-headline-wrapper">
+                    {SUGGESTED_QUESTIONS.map((q, idx) => {
+                      const isActive = idx === questionIndex;
+                      const isPrev = idx === (questionIndex - 1 + SUGGESTED_QUESTIONS.length) % SUGGESTED_QUESTIONS.length;
+                      let className = `dynamic-headline ${isActive ? 'active' : isPrev ? 'prev' : 'next'}`;
+
+                      return (
+                        <h3 key={idx} className={className} onClick={() => handleQuestionClick(q)}>
+                          "{q}"
+                        </h3>
+                      );
+                    })}
+                  </div>
+                  <p className="empty-subtitle">
+                    Click the question above or ask my AI agent about your specific needs.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           <form className="chat-input-wrapper" onSubmit={handleSearch}>
             <textarea 
               ref={textareaRef} 
@@ -282,21 +251,15 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
       </div>
 
       {smartProjects.map((p) => {
-        // МАГИЯ ЗДЕСЬ: Если проект wide или помечен как tech — выводим терминал
         const isTechProject = p.size === 'wide' || p.type === 'tech';
-
         return (
-          <Link 
-            key={p.slug} 
-            href={`/portfolio/${p.slug}`}
-            className={`case-link size-${p.computedSize}`}
-          >
+          <Link key={p.slug} href={`/portfolio/${p.slug}`} className={`case-link size-${p.computedSize}`}>
             {isTechProject ? (
               <TechCaseCard 
                 title={p.title} 
                 tags={p.tags} 
-                description={p.description || "Pipeline automation & scripting. Custom tools to speed up workflow and solve complex technical challenges."} 
-                codeSnippet={p.codeSnippet || "# Initializing automation script...\nimport c4d\nimport os\n\nprint('System Ready.')\n# Executing sequence..."} 
+                description={p.description || "Pipeline automation & scripting."} 
+                codeSnippet={p.codeSnippet || "# System Ready."} 
               />
             ) : (
               <CaseCard title={p.title} tags={p.tags} imageSrc={p.previewImage} />
