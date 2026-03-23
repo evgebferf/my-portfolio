@@ -70,7 +70,13 @@ export default function ShowreelHero() {
       </div>
 
       <div className="showreel-overlay">
-        <h1 className="showreel-title">CG Generalist</h1>
+        {/* --- ЭТО ДЛЯ ЯНДЕКСА И GOOGLE (Скрыто от глаз) --- */}
+        <h1 className="visually-hidden">
+          Evgeniy Prilepskiy - Motion Designer Portfolio
+        </h1>
+
+        {/* --- ЭТО ДЛЯ ЛЮДЕЙ (Визуальный заголовок) --- */}
+        <h2 className="showreel-title">CG Generalist</h2>
         <p className="showreel-subtitle">3D &bull; CGI &bull; Motion Graphics</p>
       </div>
 

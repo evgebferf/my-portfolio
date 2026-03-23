@@ -274,16 +274,65 @@ textarea::-webkit-resizer,
   font-weight: 600;
 }
 
+/* --- Кнопка скролла к результатам --- */
+
+/* 1. ПО УМОЛЧАНИЮ СКРЫВАЕМ (НА ДЕСКТОПЕ ОНА НЕ НУЖНА) */
+.scroll-toast-wrapper {
+  display: none; 
+}
+
+/* 2. ПОКАЗЫВАЕМ ТОЛЬКО НА МОБИЛКАХ */
+@media (max-width: 768px) {
+  .scroll-toast-wrapper {
+    display: flex; /* Включаем блок */
+    position: absolute;
+    bottom: 80px; /* Висит прямо над инпутом */
+    left: 0;
+    width: 100%;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none; /* Чтобы контейнер не блокировал клики */
+  }
+
+  .scroll-toast-btn {
+    pointer-events: auto; /* Включаем клики для самой кнопки */
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .scroll-toast-btn:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* =========================================
    RESPONSIVE (Мобилки)
    ========================================= */
 @media (max-width: 768px) {
   /* 1. Освобождаем контейнер чата */
-  .glow-container {
+ .glow-container {
     grid-column: span 1 !important;
-    aspect-ratio: auto !important; /* Убиваем жесткую пропорцию 9/16 */
-    min-height: 500px; /* Даем комфортную высоту для переписки */
-    height: auto;
+    aspect-ratio: auto !important; /* Убиваем жесткую пропорцию */
+    
+    /* --- ВОТ РЕШЕНИЕ --- */
+    min-height: 50dvh; /* Задаем комфортный старт (половина экрана) */
+    max-height: 80dvh; /* СТОП-КРАН: не больше 80% высоты экрана */
+    height: 100%; /* Позволяем расти от min до max */
   }
 
   /* 2. Делаем гигантский заголовок читаемым */

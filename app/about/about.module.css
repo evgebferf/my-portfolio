@@ -1,0 +1,161 @@
+.container {
+  padding: 160px 40px 100px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 100px;
+  align-items: start;
+}
+
+.hero {
+  position: sticky;
+  top: 160px;
+}
+
+.imageWrapper {
+  position: relative;
+  aspect-ratio: 4/5;
+  background: #f5f5f5;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.portrait {
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.availability {
+  margin-top: 24px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #737373; /* Переменная --text-muted */
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.section {
+  margin-bottom: 80px;
+  max-width: 680px;
+}
+
+.section h2 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #737373;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 12px;
+}
+
+.leadText {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 24px;
+  color: #1a1a1a; /* Переменная --text-color */
+}
+
+.awardItem {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.year {
+  font-size: 0.85rem;
+  color: #737373;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  width: 40px;
+}
+
+.awardInfo h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.awardInfo p {
+  font-size: 0.95rem;
+  color: #737373;
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.skillGroup h3 {
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.skillGroup ul {
+  list-style: none;
+}
+
+.skillGroup li {
+  font-size: 1rem;
+  color: #737373;
+  margin-bottom: 8px;
+  font-weight: 300;
+}
+
+.contactLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.ctaLink {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-size: 0.9rem;
+}
+
+.cvButton {
+  padding: 12px 24px;
+  background: #1a1a1a;
+  color: #fff;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.cvButton:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 60px;
+    padding: 120px 24px 60px;
+  }
+  
+  .hero {
+    position: relative;
+    top: 0;
+  }
+
+  .skillsGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

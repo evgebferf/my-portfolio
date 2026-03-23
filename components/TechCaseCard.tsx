@@ -12,13 +12,16 @@ interface TechCaseCardProps {
 export default function TechCaseCard({ title, tags, description, codeSnippet }: TechCaseCardProps) {
   const [displayedCode, setDisplayedCode] = useState('');
   const [phase, setPhase] = useState<'TYPING' | 'SUCCESS' | 'RESTART'>('TYPING');
+  
   const scrollRef = useRef<HTMLPreElement>(null);
+  // ДОБАВЛЕНО: Флаг для отслеживания паузы автоскролла
+  const isAutoScrollPaused = useRef(false); 
 
-  // Логика печатания кода
+  // Логика печатания кода (осталась без изменений)
   useEffect(() => {
     if (phase === 'TYPING') {
       let currentIndex = 0;
-      const charsPerTick = 1; // Медленная, плавная печать
+      const charsPerTick = 1; 
       const typingDelay = 15; 
       
       const interval = setInterval(() => {
@@ -38,7 +41,6 @@ export default function TechCaseCard({ title, tags, description, codeSnippet }: 
       const timeout = setTimeout(() => {
         setDisplayedCode(prev => prev + '\n\n>>> Execution successful.\n>>> Process finished with exit code 0.\n>>> Rebooting...');
         
-        // Пауза перед тем, как стереть и начать заново (5 секунд)
         setTimeout(() => setPhase('RESTART'), 5000);
       }, 500);
       
@@ -48,12 +50,29 @@ export default function TechCaseCard({ title, tags, description, codeSnippet }: 
     if (phase === 'RESTART') {
       setDisplayedCode('');
       setPhase('TYPING');
+      // Сбрасываем паузу при перезапуске цикла
+      isAutoScrollPaused.current = false; 
     }
   }, [phase, codeSnippet]);
 
-  // Автоскролл вниз
+  // ДОБАВЛЕНО: Функция, которая следит за ручным скроллом
+  const handleUserScroll = () => {
+    if (!scrollRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    
+    // Вычисляем, насколько далеко мы от низа. 
+    // 50 пикселей — это буфер (tolerance), чтобы автоскролл не отключался от случайных микро-движений
+    const isAtBottom = scrollHeight - scrollTop <= clientHeight + 50;
+    
+    // Если мы НЕ внизу, ставим автоскролл на паузу
+    isAutoScrollPaused.current = !isAtBottom;
+  };
+
+  // ОБНОВЛЕНО: Автоскролл вниз с проверкой
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !isAutoScrollPaused.current) {
+      // Крутим вниз ТОЛЬКО если пользователь не читает верхний код
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [displayedCode]);
@@ -61,7 +80,6 @@ export default function TechCaseCard({ title, tags, description, codeSnippet }: 
   return (
     <article className="tech-card-container">
       
-      {/* 1. ШАПКА ОКНА (ТЕПЕРЬ СВЕРХУ ВО ВСЮ ШИРИНУ) */}
       <div className="terminal-header">
         <span className="dot red"></span>
         <span className="dot yellow"></span>
@@ -69,15 +87,13 @@ export default function TechCaseCard({ title, tags, description, codeSnippet }: 
         <span className="terminal-title">automation_script.py</span>
       </div>
 
-      {/* 2. НОВАЯ ОБЕРТКА ДЛЯ ВНУТРЕННЕГО КОНТЕНТА */}
       <div className="tech-content-wrapper">
-        {/* ЛЕВАЯ ЧАСТЬ: Код */}
-        <pre className="terminal-code" ref={scrollRef}>
+        {/* ДОБАВЛЕНО: onScroll={handleUserScroll} */}
+        <pre className="terminal-code" ref={scrollRef} onScroll={handleUserScroll}>
           <code>{displayedCode}</code>
           <span className="cursor">█</span>
         </pre>
 
-        {/* ПРАВАЯ ЧАСТЬ: Инфо */}
         <div className="tech-info">
           <h3 className="tech-title">{title}</h3>
           <p className="tech-tags">{tags}</p>

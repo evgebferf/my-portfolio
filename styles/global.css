@@ -1,7 +1,9 @@
 :root {
   --bg-color: #ffffff;
-  --text-color: #f0f0f0;
-  --text-muted: #888888;
+  /* Меняем на глубокий темно-серый для идеального контраста и читаемости */
+  --text-color: #1a1a1a; 
+  /* Чуть более насыщенный серый для подзаголовков, чтобы не терялся на белом */
+  --text-muted: #737373; 
   --font-primary: 'Inter', sans-serif;
   --font-display: 'Inter', sans-serif;
 }
@@ -10,6 +12,21 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* =========================================
+   UTILITIES (Служебные классы)
+   ========================================= */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 body {

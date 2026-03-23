@@ -13,6 +13,7 @@
   z-index: 100;
   mix-blend-mode: difference;
   transition: transform 0.4s ease-in-out;
+  color: #ffffff;
 }
 
 .nav-logo {
@@ -191,5 +192,82 @@
     grid-template-columns: 1fr;
     padding: 100px 20px 40px;
     gap: 40px;
+  }
+}
+
+
+
+/* =========================================
+   NEXT PROJECT TRIGGER
+   ========================================= */
+.next-project-trigger {
+  width: 100%;
+  height: 40vh; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-color);
+  border-top: 1px solid rgba(0, 0, 0, 0.05); 
+  position: relative;
+  overflow: hidden;
+}
+
+.trigger-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Базовые значения (перезаписываются через inline styles) */
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+/* Эффект мощного "улетания" текста, когда переход активировался */
+.trigger-content.navigating {
+  opacity: 0 !important;
+  transform: translateY(-40px) scale(0.9) !important;
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.trigger-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 15px;
+}
+
+.trigger-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* --- ПРОГРЕСС-БАР --- */
+.trigger-progress-bar {
+  width: 180px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1); /* Легкий серый фон полоски */
+  margin-top: 25px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.trigger-progress-fill {
+  height: 100%;
+  background: #3b82f6; /* Твой фирменный синий акцент */
+  width: 0%;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .next-project-trigger {
+    height: 30vh;
+  }
+  .trigger-title {
+    font-size: 2rem;
   }
 }

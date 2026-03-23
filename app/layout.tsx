@@ -20,9 +20,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = { 
-  title: 'Evgeniy Prilepskiy Portfolio',
+  // Указываем базовый URL твоего сайта
+  metadataBase: new URL('https://my-portfolio-two-liard-75.vercel.app'),
+  
+  title: 'Evgeniy Prilepskiy | Motion Designer Portfolio',
   description: 'Portfolio of Evgeniy Prilepskiy (Евгений Прилепский). Professional motion design, 3D animation, and visual effects.',
-  keywords: ['Evgeniy Prilepskiy', 'Евгений Прилепский', 'Motion Design', 'Portfolio'],
+  keywords: ['Evgeniy Prilepskiy', 'Евгений Прилепский', 'Motion Design', 'Portfolio', '3D Generalist'],
+  
+  // Явно указываем, что главная страница — это оригинал
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
