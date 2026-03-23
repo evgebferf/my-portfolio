@@ -41,7 +41,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <meta name="yandex-tableau-widget" content="disable" />
         <meta name="ya-title" content="none" />
         <meta name="translate" content="no" />
-        <meta name="google-site-verification" content="Depdgdedh20UtJEzt-Lb3goDPWXurKns_EVVLEgq38A" />
+        <meta name="google-site-verification" content="j5EWH9ygHD_rUCGQokBIBW1EZMm4lBpuk_mZX0rxSMo" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
