@@ -25,19 +25,23 @@ interface CaseGridProps {
   initialProjects: Project[];
 }
 
-// Вспомогательная функция для стабильной сортировки по дате
-const sortProjectsByDate = (arr: Project[]) => {
-  return [...arr].sort((a, b) => {
-    const dateA = new Date(a.createdAt || 0).getTime();
-    const dateB = new Date(b.createdAt || 0).getTime();
-    if (dateB !== dateA) return dateB - dateA;
-    // Если даты одинаковые, сортируем по slug, чтобы порядок был всегда одинаков везде
+// --- 1. ЖЕЛЕЗНАЯ СОРТИРОВКА ПО ДАТЕ (УБИЙЦА АЛФАВИТНОГО ПОРЯДКА) ---
+const getStableSortedProjects = (projects: Project[]) => {
+  return [...projects].sort((a, b) => {
+    // Преобразуем в таймстемп, если даты нет — ставим 0
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+    // Если даты разные — самая свежая сверху
+    if (timeB !== timeA) return timeB - timeA;
+
+    // Если даты вдруг совпали — сортируем по slug для стабильности
     return a.slug.localeCompare(b.slug);
   });
 };
 
 function processSmartGrid(projects: Project[], isMobile: boolean) {
-  // Делаем глубокую копию, чтобы алгоритм "Тетриса" не мутировал исходные данные
+  // Делаем глубокую копию, чтобы не мутировать исходники
   const pool = JSON.parse(JSON.stringify(projects)).map((p: Project) => ({
     ...p,
     computedSize: p.size || 'standard'
@@ -68,7 +72,7 @@ function processSmartGrid(projects: Project[], isMobile: boolean) {
   }
 
   let currentRow: Project[] = [];
-  let currentCols = 2; // AI Chat занимает 2 колонки
+  let currentCols = 2; // AI Chat (2 колонки)
   let patternCycle = 0; 
 
   const getCols = (p: Project) => {
@@ -82,7 +86,8 @@ function processSmartGrid(projects: Project[], isMobile: boolean) {
     const leftInRow = 4 - currentCols;
     let foundIndex = -1;
 
-    for (let i = 0; i < Math.min(pool.length, 6); i++) {
+    // Ищем первый проект в очереди, который влезает в остаток строки
+    for (let i = 0; i < Math.min(pool.length, 10); i++) {
       if (getCols(pool[i]) <= leftInRow) {
         foundIndex = i;
         break;
@@ -94,6 +99,7 @@ function processSmartGrid(projects: Project[], isMobile: boolean) {
       currentRow.push(item);
       currentCols += getCols(item);
     } else {
+      // Если ничего не влезает, расширяем предыдущую карточку
       if (leftInRow === 1 && currentRow.length > 0) {
         const prevItem = currentRow[currentRow.length - 1];
         if (getCols(prevItem) === 2) {
@@ -104,6 +110,7 @@ function processSmartGrid(projects: Project[], isMobile: boolean) {
     }
 
     if (currentCols >= 4) {
+      // Магия паттернов (1+1+2 или 2+1+1)
       if (currentRow.length === 3) {
         const twos = currentRow.filter(p => getCols(p) === 2);
         const ones = currentRow.filter(p => getCols(p) === 1);
@@ -128,7 +135,7 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Храним результаты поиска из чата. Если null — показываем обычный порядок.
+  // Состояние для поиска
   const [relevantSlugs, setRelevantSlugs] = useState<string[] | null>(null);
 
   useEffect(() => {
@@ -139,22 +146,23 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 1. Формируем список проектов для отображения
+  // 2. ГЛАВНЫЙ ИСТОЧНИК ПРАВДЫ (СОРТИРОВКА)
   const displayProjects = useMemo(() => {
-    // Если поиск не активен — просто стабильная сортировка по дате
-    if (!relevantSlugs) {
-      return sortProjectsByDate(initialProjects);
-    }
+    // Сначала ВСЕГДА сортируем всё по дате
+    const dateSortedAll = getStableSortedProjects(initialProjects);
 
-    // Если поиск активен — сначала релевантные, потом остальные (все внутри отсортированы по дате)
-    const relevant = initialProjects.filter(p => relevantSlugs.includes(p.slug));
-    const others = initialProjects.filter(p => !relevantSlugs.includes(p.slug));
+    if (!relevantSlugs) return dateSortedAll;
 
-    return [...sortProjectsByDate(relevant), ...sortProjectsByDate(others)];
+    // Если есть поиск: релевантные наверх, остальные вниз (внутри каждой группы сохраняем дату)
+    const relevant = dateSortedAll.filter(p => relevantSlugs.includes(p.slug));
+    const others = dateSortedAll.filter(p => !relevantSlugs.includes(p.slug));
+
+    return [...relevant, ...others];
   }, [initialProjects, relevantSlugs]);
 
-  // 2. Прогоняем через алгоритм сетки
+  // 3. ФОРМИРОВАНИЕ СЕТКИ
   const smartProjects = useMemo(() => {
+    // Пока не смонтировались, рендерим дефолт без мобильных хаков
     return processSmartGrid(displayProjects, isMounted ? isMobile : false);
   }, [displayProjects, isMobile, isMounted]);
 
@@ -181,8 +189,8 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
               <TechCaseCard 
                 title={p.title} 
                 tags={p.tags} 
-                description={p.description || "Pipeline automation & scripting."} 
-                codeSnippet={p.codeSnippet || "# System Ready."} 
+                description={p.description} 
+                codeSnippet={p.codeSnippet} 
               />
             ) : (
               <CaseCard 
