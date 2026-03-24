@@ -2,13 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import ShowreelHero from '@/components/ShowreelHero';
 import CaseGrid from '@/components/CaseGrid';
+// 1. ИМПОРТИРУЕМ НАШУ ЖЕЛЕЗНУЮ СОРТИРОВКУ
+import { getStableSortedProjects } from '@/utils/sortProjects'; 
 
 export default async function PortfolioPage() {
-  // 1. Читаем проекты СРАЗУ ЗДЕСЬ (на сервере)
   const projectsDir = path.join(process.cwd(), 'components/projects');
   const entries = fs.readdirSync(projectsDir, { withFileTypes: true });
 
-  const projects = entries
+  const unsortedProjects = entries
     .filter((entry) => entry.isDirectory())
     .map((folder) => {
       const folderPath = path.join(projectsDir, folder.name);
@@ -17,22 +18,22 @@ export default async function PortfolioPage() {
       if (!fs.existsSync(metaPath)) return null;
 
       const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-      const stats = fs.statSync(folderPath);
       
+      // 🚨 УБРАЛИ fs.statSync!
+      // Берем данные строго из metadata.json
       return { 
         slug: folder.name, 
-        ...meta,
-        createdAt: stats.birthtimeMs 
+        ...meta // Здесь уже лежит нормальный строковый createdAt (например, "2025-07-15")
       };
     })
-    .filter(Boolean)
-    .sort((a: any, b: any) => b.createdAt - a.createdAt);
+    .filter(Boolean);
 
-  // 2. Рендерим всё вместе
+  // 2. СОРТИРУЕМ ПРАВИЛЬНО (так же, как на клиенте)
+  const projects = getStableSortedProjects(unsortedProjects as any[]);
+
   return (
     <main>
       <ShowreelHero />
-      {/* Передаем проекты в CaseGrid как пропс */}
       <CaseGrid initialProjects={projects} />
     </main>
   );

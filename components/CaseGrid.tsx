@@ -6,6 +6,8 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import CaseCard from './CaseCard';
 import TechCaseCard from './TechCaseCard';
 import AiChatCard from './AiChatCard'; 
+// ИМПОРТИРУЕМ НАШУ ЕДИНУЮ ЖЕЛЕЗНУЮ СОРТИРОВКУ
+import { getStableSortedProjects } from '@/utils/sortProjects';
 
 export interface Project {
   slug: string;
@@ -24,21 +26,6 @@ export interface Project {
 interface CaseGridProps {
   initialProjects: Project[];
 }
-
-// --- 1. ЖЕЛЕЗНАЯ СОРТИРОВКА ПО ДАТЕ (УБИЙЦА АЛФАВИТНОГО ПОРЯДКА) ---
-const getStableSortedProjects = (projects: Project[]) => {
-  return [...projects].sort((a, b) => {
-    // Преобразуем в таймстемп, если даты нет — ставим 0
-    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-
-    // Если даты разные — самая свежая сверху
-    if (timeB !== timeA) return timeB - timeA;
-
-    // Если даты вдруг совпали — сортируем по slug для стабильности
-    return a.slug.localeCompare(b.slug);
-  });
-};
 
 function processSmartGrid(projects: Project[], isMobile: boolean) {
   // Делаем глубокую копию, чтобы не мутировать исходники
@@ -189,8 +176,8 @@ export default function CaseGrid({ initialProjects }: CaseGridProps) {
               <TechCaseCard 
                 title={p.title} 
                 tags={p.tags} 
-                description={p.description} 
-                codeSnippet={p.codeSnippet} 
+                description={p.description || ""} 
+                codeSnippet={p.codeSnippet || ""} 
               />
             ) : (
               <CaseCard 
